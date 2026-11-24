@@ -1,15 +1,11 @@
-"""TSP çözüm yöntemleri: en yakın komşu, 2-opt ve genetik algoritma.
-
-Turlar 0 numaralı şehirden başlayıp oraya dönüyor. Genetik algoritmada birey
-sadece 1..n-1 şehirlerinin sırası, başlangıç şehri sabit (ödevdeki gibi).
-"""
 import random
 
 import numpy as np
 
+# turlar hep 0. sehirden basliyor, GA'da birey sadece 1..n-1 sehirlerin sirasi (odevdeki gibi)
+
 
 def en_yakin_komsu(mesafe, baslangic=0):
-    """Her adımda henüz gidilmemiş en yakın şehre gider."""
     n = len(mesafe)
     tur = [baslangic]
     ziyaret = np.zeros(n, dtype=bool)
@@ -21,14 +17,13 @@ def en_yakin_komsu(mesafe, baslangic=0):
         tur.append(sonraki)
         ziyaret[sonraki] = True
 
-    # Başlangıç şehri 0 olacak şekilde döndürülüyor
+    # tur 0 ile baslasin diye kaydiriyorum
     i = tur.index(0)
     return tur[i:] + tur[:i]
 
 
 def iki_opt(tur, mesafe):
-    """2-opt yerel arama: iki kenarı çıkarıp aradaki parçayı ters çevirerek
-    tur kısalıyorsa uygular, iyileşme kalmayana kadar devam eder."""
+    # iki kenari cikarip aradaki parcayi ters ceviriyor, kisalma kalmayana kadar devam
     tur = np.array(tur)
     n = len(tur)
     iyilesti = True
@@ -37,7 +32,7 @@ def iki_opt(tur, mesafe):
         iyilesti = False
         for i in range(1, n - 1):
             a, b = tur[i - 1], tur[i]
-            # i'den sonraki tüm j'ler için kazanç tek seferde hesaplanıyor
+            # i'den sonraki butun j'ler icin kazanci tek seferde hesapliyorum, dongu cok yavasti
             j = np.arange(i + 1, n)
             c, d = tur[j], tur[(j + 1) % n]
             kazanc = mesafe[a, b] + mesafe[c, d] - mesafe[a, c] - mesafe[b, d]
@@ -51,8 +46,7 @@ def iki_opt(tur, mesafe):
 
 
 def _ox_crossover(p1, p2, rastgele):
-    # Ordered Crossover: birinci ebeveynden bir parça alınıyor, kalan şehirler
-    # ikinci ebeveyndeki sırayla dolduruluyor, böylece şehir tekrarı olmuyor
+    # ordered crossover: p1'den bir parca, kalanlar p2'deki sirayla, sehir tekrari olmuyor
     boyut = len(p1)
     a, b = sorted(rastgele.sample(range(boyut), 2))
     cocuk = [None] * boyut
@@ -69,7 +63,7 @@ def _ox_crossover(p1, p2, rastgele):
 
 
 def _inversion_mutasyon(birey, oran, rastgele):
-    # Rastgele bir parçayı ters çeviriyor (2-opt hamlesiyle aynı mantık)
+    # rastgele bir parcayi ters ceviriyor
     if rastgele.random() < oran:
         a, b = sorted(rastgele.sample(range(len(birey)), 2))
         birey[a:b] = birey[a:b][::-1]
@@ -77,7 +71,7 @@ def _inversion_mutasyon(birey, oran, rastgele):
 
 
 def _populasyon_mesafeleri(pop, mesafe):
-    # Tüm popülasyonun tur uzunlukları tek numpy işlemiyle hesaplanıyor
+    # butun populasyonun uzunluklari tek numpy islemiyle
     n_birey = len(pop)
     turlar = np.hstack([np.zeros((n_birey, 1), dtype=int), np.array(pop)])
     return mesafe[turlar, np.roll(turlar, -1, axis=1)].sum(axis=1)
@@ -94,18 +88,9 @@ def genetik_algoritma(
     yerel_arama=False,
     seed=0,
 ):
-    """Genetik algoritma ile TSP çözümü.
-
-    secim="ilk20": ödevdeki yöntem, ebeveynler en iyi 20 bireyden rastgele seçiliyor.
-    secim="turnuva": her ebeveyn için popülasyondan turnuva_boyutu kadar birey
-    çekilip en iyisi alınıyor, çeşitlilik daha uzun korunuyor.
-
-    yerel_arama=True: memetik algoritma, üretilen her çocuğa 2-opt uygulanıyor.
-    GA turun genel yapısını keşfediyor, 2-opt ise her bireyi en yakın yerel
-    optimuma taşıyor.
-
-    Döndürdüğü değerler: en iyi tur (0 ile başlayan), her nesildeki en iyi mesafe listesi
-    """
+    # secim="ilk20": odevdeki gibi ebeveynler en iyi 20 bireyden
+    # secim="turnuva": her ebeveyn icin turnuva_boyutu kadar birey cekip en iyisini aliyorum
+    # yerel_arama=True: memetik, her cocuga 2-opt uygulaniyor
     rastgele = random.Random(seed)
     sehirler = list(range(1, len(mesafe)))
     pop = [rastgele.sample(sehirler, len(sehirler)) for _ in range(pop_boyutu)]
@@ -123,7 +108,7 @@ def genetik_algoritma(
         yeni_pop = [list(b) for b in pop[:elitizm]]
         while len(yeni_pop) < pop_boyutu:
             if secim == "turnuva":
-                # Popülasyon sıralı olduğu için en küçük indeks en iyi birey
+                # populasyon sirali, en kucuk indeks en iyi birey
                 e1 = pop[min(rastgele.sample(range(pop_boyutu), turnuva_boyutu))]
                 e2 = pop[min(rastgele.sample(range(pop_boyutu), turnuva_boyutu))]
             else:
@@ -131,7 +116,6 @@ def genetik_algoritma(
             cocuk = _ox_crossover(e1, e2, rastgele)
             cocuk = _inversion_mutasyon(cocuk, mutasyon, rastgele)
             if yerel_arama:
-                # 2-opt fonksiyonu 0 ile başlayan tam tur bekliyor
                 cocuk = iki_opt([0] + cocuk, mesafe)[1:]
             yeni_pop.append(cocuk)
         pop = yeni_pop

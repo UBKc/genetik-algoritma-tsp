@@ -1,14 +1,5 @@
-"""Yöntemleri 4 TSPLIB probleminde karşılaştırır.
-
-Genetik algoritma rastgele olduğu için her ayar 10 farklı seed ile çalıştırılıyor,
-ortalama ve en iyi sonuç raporlanıyor. Sapma (%) bilinen optimuma göre:
-    (bulunan - optimum) / optimum * 100
-
-Sonuçlar sonuclar/ klasörüne csv ve grafik olarak kaydediliyor.
-
-Kullanım:
-    python karsilastir.py
-"""
+# tum yontemleri 4 tsplib probleminde karsilastiriyor, sonuclar sonuclar/ klasorune
+# GA rastgele oldugu icin her ayar 10 farkli seed ile calisiyor
 import csv
 import time
 from pathlib import Path
@@ -25,11 +16,10 @@ PROBLEMLER = ["eil51", "berlin52", "st70", "kroA100"]
 SEEDLER = range(10)
 
 GA_AYARLARI = {
-    # Ödevde kullandığım ayarlar
+    # odevde kullandigim ayarlar
     "GA (ödev ayarları)": dict(pop_boyutu=100, nesil=200, mutasyon=0.1, elitizm=2, secim="ilk20"),
-    # Turnuva seçimi, daha büyük popülasyon ve daha uzun çalışma
     "GA (turnuva)": dict(pop_boyutu=300, nesil=2000, mutasyon=0.2, elitizm=2, secim="turnuva"),
-    # Memetik: her çocuğa 2-opt, küçük popülasyon yetiyor
+    # her cocuga 2-opt yapildigi icin kucuk populasyon yetiyor
     "Memetik GA": dict(pop_boyutu=30, nesil=100, mutasyon=0.2, elitizm=2, secim="turnuva",
                        turnuva_boyutu=3, yerel_arama=True),
 }
@@ -54,14 +44,13 @@ def main():
         n = len(mesafe)
         print(f"\n=== {ad} ({n} şehir, optimum {optimum}) ===")
 
-        # En yakın komşu her şehirden başlatılıyor, en iyisi alınıyor
+        # en yakin komsuyu her sehirden baslatiyorum
         t0 = time.time()
         nn_turlar = [yontemler.en_yakin_komsu(mesafe, s) for s in range(n)]
         nn_uzunluk = [tsplib.tur_uzunlugu(t, mesafe) for t in nn_turlar]
         sure = (time.time() - t0) / n
         satirlar.append([ad, "En yakın komşu", min(nn_uzunluk), np.mean(nn_uzunluk), sure])
 
-        # En yakın komşu + 2-opt, yine her başlangıç şehri için
         t0 = time.time()
         opt_uzunluk = [tsplib.tur_uzunlugu(yontemler.iki_opt(t, mesafe), mesafe) for t in nn_turlar]
         sure = (time.time() - t0) / n
@@ -83,7 +72,7 @@ def main():
                 elif seed == 0:
                     gecmisler[(ad, ga_adi)] = gecmis
 
-                # berlin52 için memetik GA'nın bulduğu en iyi tur çizilecek
+                # berlin52 grafigi icin memetik GA'nin en iyi turu
                 if ad == "berlin52" and ga_adi == "Memetik GA":
                     if ad not in en_iyi_turlar or uzunluklar[-1] < tsplib.tur_uzunlugu(en_iyi_turlar[ad], mesafe):
                         en_iyi_turlar[ad] = tur
@@ -99,7 +88,6 @@ def main():
             print(f"{s[1]:<26} en iyi {s[2]:>8.0f} (%{sapma(s[2], optimum):5.2f})"
                   f"   ortalama {s[3]:>9.1f} (%{sapma(s[3], optimum):5.2f})   {s[4]:.2f} sn")
 
-    # CSV kaydı
     with open(SONUC / "karsilastirma.csv", "w", newline="", encoding="utf-8") as f:
         yazici = csv.writer(f)
         yazici.writerow(["problem", "yontem", "en_iyi", "ortalama", "en_iyi_sapma_yuzde",
@@ -109,7 +97,7 @@ def main():
             yazici.writerow([ad, yontem, int(en_iyi), round(ort, 1), round(sapma(en_iyi, opt), 2),
                              round(sapma(ort, opt), 2), round(sure, 3)])
 
-    # Yakınsama grafiği: berlin52, üç GA ayarı
+    # yakinsama grafigi, berlin52 seed 0
     plt.figure(figsize=(8, 4.5))
     cizgiler = [
         (gecmisler[("berlin52", "GA (ödev ayarları)")], "GA (ödev ayarları, 200 nesil)"),
@@ -127,7 +115,6 @@ def main():
     plt.tight_layout()
     plt.savefig(SONUC / "yakinsama_berlin52.png", dpi=120)
 
-    # En iyi berlin52 turunun çizimi
     koordinat = tsplib.tsp_oku("veri/berlin52.tsp")
     mesafe = tsplib.mesafe_matrisi(koordinat)
     tur = en_iyi_turlar["berlin52"] + [en_iyi_turlar["berlin52"][0]]
