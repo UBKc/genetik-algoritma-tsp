@@ -1,0 +1,25 @@
+problem,yontem,en_iyi,ortalama,en_iyi_sapma_yuzde,ortalama_sapma_yuzde,sure_sn
+eil51,En yakın komşu,482,525.9,13.15,23.45,0.0
+eil51,En yakın komşu + 2-opt,431,442.5,1.17,3.88,0.003
+eil51,GA (ödev ayarları),488,506.4,14.55,18.87,0.245
+eil51,GA (turnuva),449,463.1,5.4,8.71,10.038
+eil51,GA (turnuva) + 2-opt,440,451.3,3.29,5.94,10.038
+eil51,Memetik GA,426,426.7,0.0,0.16,2.598
+berlin52,En yakın komşu,8181,9375.6,8.47,24.31,0.0
+berlin52,En yakın komşu + 2-opt,7717,8079.6,2.32,7.13,0.002
+berlin52,GA (ödev ayarları),8732,9122.3,15.78,20.95,0.225
+berlin52,GA (turnuva),7888,8308.1,4.59,10.16,10.719
+berlin52,GA (turnuva) + 2-opt,7766,8174.9,2.97,8.39,10.719
+berlin52,Memetik GA,7542,7542.0,0.0,0.0,4.207
+st70,En yakın komşu,796,841.3,17.93,24.63,0.0
+st70,En yakın komşu + 2-opt,688,717.0,1.93,6.23,0.005
+st70,GA (ödev ayarları),860,959.1,27.41,42.09,0.374
+st70,GA (turnuva),692,734.2,2.52,8.77,12.297
+st70,GA (turnuva) + 2-opt,692,712.2,2.52,5.51,12.297
+st70,Memetik GA,675,676.5,0.0,0.22,3.539
+kroA100,En yakın komşu,24698,27046.4,16.05,27.09,0.0
+kroA100,En yakın komşu + 2-opt,21452,22141.4,0.8,4.04,0.008
+kroA100,GA (ödev ayarları),35439,39324.6,66.52,84.78,0.387
+kroA100,GA (turnuva),22926,24077.7,7.72,13.14,15.482
+kroA100,GA (turnuva) + 2-opt,21716,23110.7,2.04,8.59,15.482
+kroA100,Memetik GA,21282,21282.0,0.0,0.0,6.698

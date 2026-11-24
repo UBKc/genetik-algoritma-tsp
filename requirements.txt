@@ -1,0 +1,5 @@
+numpy
+matplotlib
+# sadece odev/ga_tsp_odev.py icin
+pandas
+openpyxl
